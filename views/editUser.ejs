@@ -1,0 +1,36 @@
+<html lang="en">
+<%- include("./partials/header.ejs")%> 
+
+<body>
+    <h1>Edit user</h1>
+  <form action="/dashboard/edit_user" method="post" enctype="multipart/form-data">
+    <div  class="container">
+      <div class="profile">
+        <div class="img"></div>
+        <label for="user_first_name">first_name</label>
+        <input type="text" class="input" id="user_first_name" name="first_name">
+        <label for="user_last_name">last_name</label>
+        <input type="text" class="input" id="user_last_name" name="last_name">
+        <label for="user_email">login</label>
+        <input type="email" class="input" id="user_email" name="email" placeholder="email">
+        <label for="user_password">password</label>
+        <input type="password" class="input" id="user_password" name="password" placeholder="password">
+        <label for="joined_date">joined date</label>
+        <input type="date" class="input" id="joined_date" name="joined_date" placeholder="joined date">
+        <label for="branch">branch</label>
+        <input type="text" class="input" id="branch" name="branch" placeholder="branch">
+        <label for="photo">photo</label>
+        <button class="btn btn-outline-success" type="submit">Edit</button>
+        <input type="file" name="sampleFile" />
+        <input type="submit" value="Upload!" />
+    </div>
+</div>
+</form>
+        <div class="link">
+            <a href="./vacation_req_list">login</a>
+          </div>
+      
+  
+<%- include("./partials/footer.ejs") %> 
+</body>
+</html>

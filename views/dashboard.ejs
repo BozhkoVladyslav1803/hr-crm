@@ -1,0 +1,20 @@
+<html lang="en">
+<%- include("./partials/header.ejs")%> 
+
+<body>
+  <form action="" method="post">
+    <div  class="container">
+      <div class="profile">
+        <div class="img"></div>
+        <h2><%- first_name + ' ' + last_name + ' ' +  middle_name %></h2>
+        <button class="btn btn-outline-success" name="button_dashboard" value="edit_user" type="submit">Edit</button>
+        <h2><%- email %></h2> 
+        <h1>Click button to fill out your vacation request</h1>
+        <button class="btn btn-outline-success" name="button_dashboard" value="create_request" type="submit">Create</button>
+        <a href="/Logout">logout</a>
+      </div>
+    </div>
+  </form>
+<%- include("./partials/footer.ejs") %> 
+</body>
+</html>

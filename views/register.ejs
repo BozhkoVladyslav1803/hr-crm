@@ -1,0 +1,29 @@
+<html lang="en">
+<%- include("./partials/header.ejs")%> 
+  <body>
+    <div>
+      <h1>Sign up</h1>
+      <form action="" method="post">
+        <label for="first_name">first name</label>
+        <input type="text" class="input" id="first_name" name="first_name">
+        <label for="last_name">last name</label>
+        <input type="text" class="input" id="last_name" name="last_name">
+        <label for="middle_name">middle name</label>
+        <input type="text" class="input" id="middle_name" name="middle_name">
+        <label for="user_email">email</label>
+        <input type="email" class="input" id="user_email" name="email" placeholder="email">
+        <label for="user_password">password</label>
+        <input type="password" class="input" id="user_pass" name="password" placeholder="password">
+        <button class="btn btn-outline-success" type="submit">Submit</button>
+        <% if(typeof error !== 'undefined'){%>
+          <div class="err_msq"><%- error -%></div><%}%>
+          <input type="submit" value="Login">
+          <div class="link">
+            <a href="./login">login</a>
+          </div>
+      </form>
+    </div>
+    
+    <%- include("./partials/footer.ejs") %> 
+  </body>
+</html>
