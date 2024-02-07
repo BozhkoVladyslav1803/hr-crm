@@ -23,6 +23,7 @@
     "lodash": "^4.17.21",
     "morgan": "^1.10.0",
     "mysql2": "3.6.2",
-    "sequelize": "^6.36.0"
+    "sequelize": "^6.36.0",
+    "unique-filename": "^3.0.0"
   }
 }

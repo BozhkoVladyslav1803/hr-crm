@@ -26,11 +26,14 @@ const {
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 app.use(express.urlencoded({ extended: false }));
 app.use(
     session({
         name: 'session',
-        secret: 'pryvit',
+        secret: 'q',
         resave: false,
         saveUninitialized: true,
         cookie: {
@@ -61,8 +64,6 @@ app.use(fileUpload());
 router.get('/dashboard/edit_user', editUserPage);
 router.post('/dashboard/edit_user',editUser);
 
-//router.post('/dashboard/edit_user', editUser);
-
 router.get('/dashboard/create_request', createRequestPage);
 router.post('/dashboard/create_request', createRequest);
 
@@ -73,16 +74,6 @@ app.use('/', router);
 app.listen(3000);
 
 app.use(morgan('dev'));
-
-/*dbConnection.query("SELECT * FROM user", (error, results, fields) => {
-  if (error) {
-    console.log(error);
-  } else {
-    console.log("Connection exist");
-  }
-
-  console.log(results, fields);
-});*/
 
 app.get((req, res) => {
     res.status(404).sendFile('./views/404.html', { root: __dirname });

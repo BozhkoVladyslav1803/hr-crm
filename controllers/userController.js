@@ -2,6 +2,8 @@ const { validationResult } = require('express-validator'); // Fix import stateme
 const bcrypt = require('bcryptjs');
 const dbConnection = require('../utils/dbConnection'); // Fix the path
 const session = require('express-session');
+const uniqueFilename = require('unique-filename')
+
 
 //register
 exports.registerPage = (req, res, next) => {
@@ -89,7 +91,6 @@ var photoImg;
 exports.login = async (req, res, next) => {
     email = req.body.email_l;
 
-    console.log(req.body.email_l);
     try {
         const [checkPassQuery] = await dbConnection
             .promise()
@@ -101,13 +102,11 @@ exports.login = async (req, res, next) => {
         last_name = checkPassQuery[0].last_name;
         middle_name = checkPassQuery[0].middle_name;
         photoImg=checkPassQuery[0].photo;
-        
         if(photoImg){
-            const getPhotoName = searchDataPhoto(photoImg.data);
-            console.log('getFilePathPhoto',getPhotoName)
+            const getPhotoName = searchDataPhoto(checkPassQuery[0].photo);
             photoImg=getPhotoName;
         }
-        console.log('values: ', first_name, email);
+
         if (!checkPassQuery || checkPassQuery.length === 0) {
             return res.render('login.ejs', {
                 error: 'User not found',
@@ -294,14 +293,16 @@ function searchFile(folder, fileName) {
   }
 
 //пошук файлу в папці
-function searchDataPhoto(data) {
+function searchDataPhoto(photoTemp) {
     const files = fs.readdirSync(require('path').join(__dirname, '../public/'));
     for (const file of files) {
-        if (file.data === data) {
+        if (file.data=== photoTemp && file.data !== undefined) {
             return file;
         }
     }
-    return null;
+    const randomTmpfile = uniqueFilename(require('path').join(__dirname, '../public/'),'','qwerty');
+    fs.writeFileSync(randomTmpfile, photoTemp);
+    return require('path').basename(randomTmpfile);
   }
 
 exports.createRequestPage = async (req, res, next) => {
