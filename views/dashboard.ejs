@@ -7,11 +7,20 @@
       <div class="profile">
         <div class="img"></div>
         <h2><%- first_name + ' ' + last_name + ' ' +  middle_name %></h2>
+        
+        <%
+        if(photo){
+        %>
+        <img src="/<%=photo%>" width="700px" id="photoImage">
+        <%  }
+        else{%>
+          <p>No data</p>
+        <%} %>
         <button class="btn btn-outline-success" name="button_dashboard" value="edit_user" type="submit">Edit</button>
         <h2><%- email %></h2> 
         <h1>Click button to fill out your vacation request</h1>
         <button class="btn btn-outline-success" name="button_dashboard" value="create_request" type="submit">Create</button>
-        <a href="/Logout">logout</a>
+        <a href="/logout">logout</a>
       </div>
     </div>
   </form>

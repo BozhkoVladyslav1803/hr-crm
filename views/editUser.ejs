@@ -20,9 +20,10 @@
         <label for="branch">branch</label>
         <input type="text" class="input" id="branch" name="branch" placeholder="branch">
         <label for="photo">photo</label>
+        <input type="file" class="input" id="sampleFile" name="sampleFile" placeholder="sampleFile"/>
         <button class="btn btn-outline-success" type="submit">Edit</button>
-        <input type="file" name="sampleFile" />
-        <input type="submit" value="Upload!" />
+        <% if(typeof error !== 'undefined'){%>
+          <div class="err_msq"><%- error -%></div><%}%>
     </div>
 </div>
 </form>

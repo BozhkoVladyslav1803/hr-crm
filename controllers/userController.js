@@ -3,20 +3,6 @@ const bcrypt = require('bcryptjs');
 const dbConnection = require('../utils/dbConnection'); // Fix the path
 const session = require('express-session');
 
-//home
-/*exports.homePage = async (req, res, next) => {
-    const [row] = await dbConnection.execute(
-        "SELECT * FROM 'user' WHERE 'id'=?",
-        [req.session.userID]
-    );
-    if (row.lenght !== 1) {
-        return res.redirect('logout.ejs');
-    }
-    res.render('dashboard', {
-        user: row[0],
-    });
-};*/
-
 //register
 exports.registerPage = (req, res, next) => {
     res.render('register.ejs');
@@ -98,6 +84,7 @@ var first_name;
 var last_name;
 var middle_name;
 var email;
+var photoImg;
 //login user due to 'post' request
 exports.login = async (req, res, next) => {
     email = req.body.email_l;
@@ -113,6 +100,13 @@ exports.login = async (req, res, next) => {
         first_name = checkPassQuery[0].first_name;
         last_name = checkPassQuery[0].last_name;
         middle_name = checkPassQuery[0].middle_name;
+        photoImg=checkPassQuery[0].photo;
+        
+        if(photoImg){
+            const getPhotoName = searchDataPhoto(photoImg.data);
+            console.log('getFilePathPhoto',getPhotoName)
+            photoImg=getPhotoName;
+        }
         console.log('values: ', first_name, email);
         if (!checkPassQuery || checkPassQuery.length === 0) {
             return res.render('login.ejs', {
@@ -153,135 +147,90 @@ exports.dashboardPage = async (req, res, next) => {
         last_name: last_name,
         middle_name: middle_name,
         email: email,
+        photo: photoImg
     });
 };
 
+var inputValue;
+
 exports.dashboard = async (req, res, next) => {
-    var inputValue = req.body.button_dashboard;
+    inputValue = req.body.button_dashboard;
     if (inputValue == 'create_request') {
         return res.redirect(`/dashboard/create_request`);
     } else if (inputValue == 'edit_user') {
         return res.redirect(`/dashboard/edit_user`);
+    }else{
+        return res.redirect('/dashboard')
     }
 };
 
-/*const fs = require("fs");
-const inputfile = "profile.jpg";
-const outputfile = "output.png";
-pool.query("INSERT INTO hr_db.user (photo) VALUES(BINARY(:data))", { data }, function(err, res) {
-    if (err) throw err;
-    console.log("BLOB data inserted!");
-    // Check to read it from DB:
-    pool.query("select * from hr_db.user", function(err, res) {
-      if (err) throw err;
-      const row = res[0];
-      // Got BLOB data:
-      const data = row.data;
-      console.log("BLOB data read!");
-      // Converted to Buffer:
-      const buf = new Buffer(data, "binary");
-      // Write new file out:
-      fs.writeFileSync(outputfile, buf);
-      console.log("New file output:", outputfile);
-    });
-  });
-// Read buffer of an image file:
-const data = readImageFile(inputfile); // `data`'s type is Buffer
-console.log(data)
-
-function readImageFile(file) {
-  // read binary data from a file:
-  const bitmap = fs.readFileSync(file);
-  const buf = new Buffer(bitmap);
-  return buf;
-}
-*/
-
 exports.editUserPage = async (req, res, next) => {
-    // Check to read it from DB:
-    /*pool.query('select * from hr_db.user', function (err, res) {
-        if (err) throw err;
-        const row = res[0];
-        // Got BLOB data:
-        const data = row.data;
-        console.log('BLOB data read!');
-        // Converted to Buffer:
-        const buf = new Buffer(data, 'binary');
-        // Write new file out:
-        fs.writeFileSync(outputfile, buf);
-        console.log('New file output:', outputfile);
-    });*/
     res.render('editUser.ejs');
 };
+
 const fs = require('fs');
 const { promisify } = require('util');
+const { dirname } = require('path');
 const readFileAsync = promisify(fs.readFile);
 
-var path = require('path');
 exports.editUser = async (req, res, next) => {
     try {
         let sampleFile;
-        let uploadPath;
-
+        
         if (!req.files || Object.keys(req.files).length === 0) {
             return console.log('No files were uploaded on web.');
         }
 
-        // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
         sampleFile = req.files.sampleFile;
-        console.log('1', sampleFile);
-        var data;
-        // Use the mv() method to place the file somewhere on your server
-        sampleFile.mv('./uploads/' + sampleFile.name, function (err) {
-            if (err) {
-                return console.log('Error uploading file:', err);
-            } else {
-                console.log('File uploaded!');
-                uploadPath = path.join(
-                    __dirname,
-                    './uploads/' + sampleFile.name
-                );
-                console.log('Path:', uploadPath);
-                console.log('2', uploadPath);
-                fs.readFile(uploadPath, (err, data1) => {
-                    if (err) {
-                        console.error('Error reading file:', err);
-                        return;
-                    }
-                    console.log('File data:', data1); // Handle the file data here
-                    data = data1;
-                });
-            }
-        });
-
-        //email already exists or not?
-        const [checkPassQuery] = await dbConnection
+        
+        const [checkPassQueryID] = await dbConnection
             .promise()
-            .execute('SELECT * FROM hr_db.user where email=?', [
-                req.body.email,
+            .execute('SELECT * FROM hr_db.user where id=?', [
+                req.session.userID
             ]);
-        console.log('Rows:', checkPassQuery);
-        console.log('пул закритий');
-        console.log('lenght ', checkPassQuery.length);
-        if (checkPassQuery.length > 0) {
-            return res.render('register.ejs', {
-                error: 'Email already exists',
-            });
+        
+        if(req.body.email!==checkPassQueryID[0].email){
+            //email already exists or not?
+            const [checkPassQueryEmail] = await dbConnection
+                .promise()
+                .execute('SELECT * FROM hr_db.user where email=?', [
+                    req.body.email,
+            ]);
+            console.log('Rows:', checkPassQueryEmail);
+            console.log('пул закритий');
+            console.log('lenght ', checkPassQueryEmail.length);
+            if (checkPassQueryEmail.length > 0) {
+                return res.render('register.ejs', {
+                    error: 'Email already exists'
+                });
+            }    
         }
 
-        let first_name = req.body.first_name;
+        var first_name = req.body.first_name;
         console.log('first_name: ', first_name);
-        let last_name = req.body.last_name;
+        var last_name = req.body.last_name;
         console.log('last_name: ', last_name);
-        let email = req.body.email;
+        var email = req.body.email;
         console.log('email: ', email);
-        let password = req.body.password;
+        if(req.body.password)
+            var password = req.body.password;
+        else 
+            if (req.body.password.trim().length === 0) {
+                return res.render('editUser.ejs', {
+                    error: 'Password is required',
+                });
+            }
+        else
+            return res.render('editUser.ejs', {
+                error: 'Other errors',
+            });
         console.log('password: ', password);
         let joined_date = req.body.joined_date;
         console.log('joined_date: ', joined_date);
         let branch = req.body.branch;
         console.log('branch: ', branch);
-        console.log('data', data);
+        var photo = sampleFile.data;
+        console.log('photo', photo);
         console.log('req.session.userID', req.session.userID);
 
         const [new_edit] = await dbConnection
@@ -291,19 +240,69 @@ exports.editUser = async (req, res, next) => {
                 [
                     first_name || null,
                     last_name || null,
-                    email || null,
+                    email,
                     joined_date || null,
                     branch || null,
-                    (await bcrypt.hash(password, 12)) || null,
-                    data || null,
+                    (await bcrypt.hash(password, 12)),
+                    photo || null,
                     req.session.userID || null,
                 ]
             );
         console.log('new_edit', new_edit);
+        const folderPath =require('path').join(__dirname, '../public/');
+        const fileNameToSearch = sampleFile.name;
+        try {
+            const [mid_nq] = await dbConnection
+                .promise()
+                .execute('SELECT * FROM hr_db.user where email=?', [
+                    req.body.email,
+                ]);
+
+                var middle_name = mid_nq[0].middle_name;
+
+                const resultFilePath = searchFile(folderPath, fileNameToSearch);
+                console.log('resultFilePath',resultFilePath);
+
+                if (resultFilePath) {
+                console.log(`Файл знайдено: ${resultFilePath}`);
+                } else {
+                    fs.writeFileSync(folderPath+fileNameToSearch, sampleFile.data);
+                    console.log(`Файл збережено`);
+                }
+                photoImg=fileNameToSearch;
+                inputValue=null;
+        } catch (err) {
+            next(err);
+        }
+        res.redirect(`/dashboard`);
     } catch (err) {
         next(err);
     }
 };
+
+//пошук файлу в папці
+function searchFile(folder, fileName) {
+    const files = fs.readdirSync(folder);
+  
+    for (const file of files) {
+      const filePath = require('path').join(folder, file);
+      if (file === fileName) {
+        return filePath;
+      }
+    }
+    return null;
+  }
+
+//пошук файлу в папці
+function searchDataPhoto(data) {
+    const files = fs.readdirSync(require('path').join(__dirname, '../public/'));
+    for (const file of files) {
+        if (file.data === data) {
+            return file;
+        }
+    }
+    return null;
+  }
 
 exports.createRequestPage = async (req, res, next) => {
     res.render('createRequest.ejs');
