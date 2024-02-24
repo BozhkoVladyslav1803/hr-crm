@@ -6,20 +6,21 @@
     <div  class="container">
       <div class="profile">
         <div class="img"></div>
-        <h2><%- first_name + ' ' + last_name + ' ' +  middle_name %></h2>
-        
+        <h2><%- first_name + ' ' + last_name + ' ' +  middle_name %></h2><br>
+        <h5>position: <%- position %></h5>
+        <h5>email: <%- email %></h5>
+        <h5>joined company: <%- joined_date %></h5> <br><br>
         <%
         if(photo){
         %>
         <img src="/<%=photo%>" width="700px" id="photoImage">
         <%  }
         else{%>
-          <p>No data</p>
-        <%} %>
-        <button class="btn btn-outline-success" name="button_dashboard" value="edit_user" type="submit">Edit</button>
-        <h2><%- email %></h2> 
-        <h1>Click button to fill out your vacation request</h1>
-        <button class="btn btn-outline-success" name="button_dashboard" value="create_request" type="submit">Create</button>
+          <p>No photo</p>
+        <%} %><br>
+        <button class="btn btn-outline-success" name="button_dashboard" value="edit_user" type="submit">Edit profile</button>
+        <button class="btn btn-outline-success" name="button_dashboard" value="create_request" type="submit">Create vacation</button>
+        <button class="btn btn-outline-success" name="button_dashboard" value="vacation_list" type="submit">Vacation List</button><br><br>
         <a href="/logout">logout</a>
       </div>
     </div>

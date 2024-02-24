@@ -1,19 +1,19 @@
 <html lang="en">
 <%- include("./partials/header.ejs")%> 
   <body>
-    <div>
-      <h1>Sign up</h1>
+    <div class="center-container" >
+      <h1>Sign up</h1><br>
       <form action="" method="post">
-        <label for="first_name">first name</label>
-        <input type="text" class="input" id="first_name" name="first_name">
-        <label for="last_name">last name</label>
-        <input type="text" class="input" id="last_name" name="last_name">
-        <label for="middle_name">middle name</label>
-        <input type="text" class="input" id="middle_name" name="middle_name">
-        <label for="user_email">email</label>
-        <input type="email" class="input" id="user_email" name="email" placeholder="email">
-        <label for="user_password">password</label>
-        <input type="password" class="input" id="user_pass" name="password" placeholder="password">
+        <label for="first_name">first name
+        <input type="text" class="input" id="first_name" name="first_name"></label><br><br>
+        <label for="last_name">last name
+        <input type="text" class="input" id="last_name" name="last_name"></label><br><br>
+        <label for="middle_name">middle name
+        <input type="text" class="input" id="middle_name" name="middle_name"></label><br><br>
+        <label for="user_email">email
+        <input type="email" class="input" id="user_email" name="email" placeholder="email"></label><br><br>
+        <label for="user_password">password
+        <input type="password" class="input" id="user_pass" name="password" placeholder="password"></label><br>
         <button class="btn btn-outline-success" type="submit">Submit</button>
         <% if(typeof error !== 'undefined'){%>
           <div class="err_msq"><%- error -%></div><%}%>

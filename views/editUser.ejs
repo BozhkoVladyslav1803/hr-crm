@@ -7,20 +7,32 @@
     <div  class="container">
       <div class="profile">
         <div class="img"></div>
-        <label for="user_first_name">first_name</label>
-        <input type="text" class="input" id="user_first_name" name="first_name">
-        <label for="user_last_name">last_name</label>
-        <input type="text" class="input" id="user_last_name" name="last_name">
-        <label for="user_email">login</label>
-        <input type="email" class="input" id="user_email" name="email" placeholder="email">
-        <label for="user_password">password</label>
-        <input type="password" class="input" id="user_password" name="password" placeholder="password">
-        <label for="joined_date">joined date</label>
-        <input type="date" class="input" id="joined_date" name="joined_date" placeholder="joined date">
-        <label for="branch">branch</label>
-        <input type="text" class="input" id="branch" name="branch" placeholder="branch">
-        <label for="photo">photo</label>
-        <input type="file" class="input" id="sampleFile" name="sampleFile" placeholder="sampleFile"/>
+        <label for="first_name">first_name
+        <input type="text" class="input" id="first_name" name="first_name" value="<%= first_name %>"></label><br><br>
+        <label for="last_name">last_name
+        <input type="text" class="input" id="last_name" name="last_name" value="<%= last_name %>"></label><br><br>
+        <label for="email">login
+        <input type="email" class="input" id="email" name="email" placeholder="email" value="<%= email%>"></label><br><br>
+        <label for="password">password
+        <input type="password" class="input" id="password" name="password" placeholder="password"></label><br><br>
+        <label for="positions">position
+        <select id="positions" name="positions" value="<%= positions %>"><br><br>
+          <% positions.forEach(position => { %>
+              <option value="<%= position %>"><%= position  %></option>
+          <% }); %>
+          </select></label><br><br>
+        <label for="roles">role
+        <select id="roles" name="roles" value="<%= roles %>"><br><br>
+          <% roles.forEach(role => { %>
+              <option value="<%= role %>"><%= role  %></option>
+          <% }); %>
+          </select></label><br><br>
+        <label for="joined_date">joined date
+        <input type="date" class="input" id="joined_date" name="joined_date" placeholder="joined date" value="<%= joined_date %>"></label><br><br>
+        <label for="branch">branch
+        <input type="text" class="input" id="branch" name="branch" placeholder="branch" value="<%= branch %>"></label><br><br>
+        <h6>photo
+        <input type="file" class="input" id="sampleFile" name="sampleFile" placeholder="sampleFile" value="<%= photo %>"></h6><br><br>
         <button class="btn btn-outline-success" type="submit">Edit</button>
         <% if(typeof error !== 'undefined'){%>
           <div class="err_msq"><%- error -%></div><%}%>

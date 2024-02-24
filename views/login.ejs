@@ -2,14 +2,13 @@
 <html lang="en">
 <%- include("./partials/header.ejs")%> 
   <body>
-    <div>
-      <h1>Login</h1>
+      <h1>Login</h1><br><br><br>
       <form action="" method="post">
-        <label for="user_email">email</label>
-        <input type="email" class="input" id="user_email" name="email_l" placeholder="email">
-        <label for="user_password">password</label>
-        <input type="password" class="input" id="user_pass" name="password_l" placeholder="password">
-        <button type="submit" class="button">Submit</button>
+        <label for="user_email">email
+        <input type="email" class="input" id="user_email" name="email_l" placeholder="email"></label><br>
+        <label for="user_password">password
+        <input type="password" class="input" id="user_pass" name="password_l" placeholder="password"></label><br>
+        <button type="submit" class="btn btn-outline-success">Submit</button>
         <% if (typeof error !== 'undefined') { %>
           <div class="err_msq"><%- error %></div>
       
@@ -18,7 +17,6 @@
             <a href="/register">sign up</a>
           </div>
       </form>
-    </div>
     
     <%- include("./partials/footer.ejs") %> 
   </body>

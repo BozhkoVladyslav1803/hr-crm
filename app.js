@@ -19,8 +19,8 @@ const {
     editUser,
     createRequestPage,
     createRequest,
-    vacationRequestListPage,
-    vacationRequestList,
+    vacationListPage,
+    vacationList,
 } = require('./controllers/userController');
 
 app.set('views', path.join(__dirname, 'views'));
@@ -66,6 +66,9 @@ router.post('/dashboard/edit_user',editUser);
 
 router.get('/dashboard/create_request', createRequestPage);
 router.post('/dashboard/create_request', createRequest);
+
+router.get('/dashboard/vacation_list', vacationListPage);
+router.post('/dashboard/vacation_list', vacationList);
 
 router.get('/logout', logoutPage);
 

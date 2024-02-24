@@ -6,7 +6,24 @@ const uniqueFilename = require('unique-filename')
 
 
 //register
-exports.registerPage = (req, res, next) => {
+exports.registerPage = async (req, res, next) => {
+    try {
+        const [checkUserRole] = await dbConnection
+            .promise()
+            .execute('SELECT user_role FROM hr_db.user where id=?', [
+                req.session.userID
+            ]);
+
+        if(checkUserRole[0].user_role=='admin')
+            res.render("register.ejs")
+        else
+            res.render("login.ejs")
+    } catch (error) {
+        
+    }
+    
+
+
     res.render('register.ejs');
 };
 
@@ -141,31 +158,99 @@ exports.login = async (req, res, next) => {
 };
 
 exports.dashboardPage = async (req, res, next) => {
+    let userInfo = await get_user_info(req, res, next)
+
+    const dateFormatter = new Intl.DateTimeFormat('en-US');
+    const formattedDate1 = dateFormatter.format(userInfo[0].joined_date);
+    const formattedDate2 = dateFormatter.format(new Date('1/1/1971'));
+    var p_joined_date=formattedDate1
+    if(formattedDate1<formattedDate2)
+        p_joined_date=null
     res.render('dashboard.ejs', {
         first_name: first_name,
         last_name: last_name,
         middle_name: middle_name,
         email: email,
-        photo: photoImg
+        photo: photoImg,
+        position: userInfo[0].position_id,
+        joined_date:p_joined_date
     });
 };
 
 var inputValue;
-
 exports.dashboard = async (req, res, next) => {
     inputValue = req.body.button_dashboard;
     if (inputValue == 'create_request') {
         return res.redirect(`/dashboard/create_request`);
     } else if (inputValue == 'edit_user') {
         return res.redirect(`/dashboard/edit_user`);
+    }else if (inputValue == 'vacation_list') {
+        return res.redirect(`/dashboard/vacation_list`);
     }else{
         return res.redirect('/dashboard')
     }
 };
 
+qs_options=async()=>{
+    
+}
+
 exports.editUserPage = async (req, res, next) => {
-    res.render('editUser.ejs');
+    const roles = [];
+    const positions = [];
+    try {
+        const result= await dbConnection
+            .promise()
+            .execute('SELECT role FROM hr_db.roles');
+
+        for (const arr of result) {
+            for (const row of arr) {
+                if (typeof row === 'object' && row !== null && !Array.isArray(row) && 'role' in row) 
+                    roles.push(row.role);
+            }
+        }
+
+        const qs_positions= await dbConnection
+            .promise()
+            .execute('SELECT position FROM hr_db.position');
+
+        for (const arr of qs_positions) {
+            for (const row of arr) {
+                if (typeof row === 'object' && row !== null && !Array.isArray(row) && 'position' in row) 
+                    positions.push(row.position);
+            }
+        }
+
+    } catch (error) {
+        next(error)
+    }
+    const userInfo = await get_user_info(req, res, next)
+    console.log('userInfo',userInfo)
+    res.render('editUser.ejs', {
+        first_name: userInfo[0].first_name,
+        last_name: userInfo[0].last_name,
+        email: userInfo[0].email,
+        joined_date: userInfo[0].joined_date,
+        positions: positions,
+        roles: roles,
+        branch:userInfo[0].branch,
+        photo: photoImg});
 };
+
+get_user_info=async (req, res, next) =>{
+    try {
+        const [checkPassQueryEmail] = await dbConnection
+        .promise()
+        .execute('SELECT * FROM hr_db.user where email=?', [
+            email,
+    ]);
+    return checkPassQueryEmail
+    } catch (error) {
+        console.error('Error fetching user info:', error);
+        return null;
+    }
+}
+
 
 const fs = require('fs');
 const { promisify } = require('util');
@@ -224,6 +309,10 @@ exports.editUser = async (req, res, next) => {
                 error: 'Other errors',
             });
         console.log('password: ', password);
+        var role = req.body.roles;
+        console.log('role: ', role);
+        var position = req.body.positions;
+        console.log('positions: ', position);
         let joined_date = req.body.joined_date;
         console.log('joined_date: ', joined_date);
         let branch = req.body.branch;
@@ -231,15 +320,17 @@ exports.editUser = async (req, res, next) => {
         var photo = sampleFile.data;
         console.log('photo', photo);
         console.log('req.session.userID', req.session.userID);
-
+        
         const [new_edit] = await dbConnection
             .promise()
             .execute(
-                'UPDATE hr_db.user SET first_name = ?,last_name = ?,email = ?,joined_date = ?,branch = ?,password = ?, photo = ? WHERE id=?',
+                'UPDATE hr_db.user SET first_name = ?,last_name = ?,email = ?, user_role=?, position_id=?, joined_date = ?,branch = ?,password = ?, photo = ? WHERE id=?',
                 [
                     first_name || null,
                     last_name || null,
                     email,
+                    role || null,
+                    position || null,
                     joined_date || null,
                     branch || null,
                     (await bcrypt.hash(password, 12)),
@@ -257,7 +348,7 @@ exports.editUser = async (req, res, next) => {
                     req.body.email,
                 ]);
 
-                var middle_name = mid_nq[0].middle_name;
+                //var middle_name = mid_nq[0].middle_name;
 
                 const resultFilePath = searchFile(folderPath, fileNameToSearch);
                 console.log('resultFilePath',resultFilePath);
@@ -306,11 +397,125 @@ function searchDataPhoto(photoTemp) {
   }
 
 exports.createRequestPage = async (req, res, next) => {
-    res.render('createRequest.ejs');
+    const vac_types_arr = [];
+    const approvers = [];
+    try {
+     const result= await dbConnection
+                .promise()
+                .execute('SELECT vac_type_name FROM hr_db.vac_type');
+
+    for (const arr of result) {
+        for (const row of arr) {
+            if (typeof row === 'object' && row !== null && !Array.isArray(row) && 'vac_type_name' in row) 
+                vac_types_arr.push(row.vac_type_name);
+        }
+    }
+    const adminApprovers= await dbConnection
+                .promise()
+                .execute('SELECT last_name user FROM hr_db.user where user_role="admin"');
+
+    for (const arr of adminApprovers) {
+        for (const row of arr) {
+            if (typeof row === 'object' && row !== null && !Array.isArray(row) && 'user' in row) 
+                approvers.push(row.user);
+        }
+    }
+    
+    } catch (error) {
+    }
+    var supplient=last_name+' '+first_name+' '+middle_name;
+    res.render('createRequest.ejs',{
+        supplient: supplient,
+        approvers: approvers,
+        vac_types_arr: vac_types_arr
+        });
 };
 
 exports.createRequest = async (req, res, next) => {
-    res.render('createRequest.ejs');
+    
+    var supplient= req.body.supplient;
+    console.log('supplient: ', supplient);
+    var approver = req.body.approvers;
+    console.log('approver: ', approver);
+    var first_date = req.body.first_date;
+    console.log('first_date: ', first_date);
+    var last_date = req.body.last_date;
+    console.log('last_date: ', last_date);
+    var vac_types_arr = req.body.vac_types_arr;
+    console.log('vac_types_arr: ', vac_types_arr);
+    var condition = req.body.condition;
+    console.log('condition: ', condition);
+    try {
+
+        const [approver_id]= await dbConnection
+                   .promise()
+                   .execute('Select id from hr_db.user where last_name=?',[
+                    approver,
+                ]);
+
+        const [p_user_id]= await dbConnection
+                    .promise()
+                    .execute('Select id from hr_db.user where email=?',[
+                    email,
+                ]);
+                console.log('p_user_id',p_user_id)
+                console.log('approver_id[0].id',approver_id[0].id)
+        const [qi_vac_req] = await dbConnection
+            .promise()
+            .execute('INSERT INTO hr_db.vacation_req(`suppliant_id`,`approver_id`,`first_date`,`last_date`,`vac_type`,`vac_condition`) VALUES(?,?,?,?,?,?);', [
+            p_user_id[0].id || null,
+            approver_id[0].id || null,
+            first_date || null,
+            last_date || null,
+            vac_types_arr || null,
+            condition || null
+        ]);
+            
+        console.log('qi_vac_req', qi_vac_req);
+       } catch (error) {
+        console.log(error)
+       }
+       inputValue = req.body.button_dashboard;
+       if (inputValue == 'vacation_list') {
+           return res.redirect(`/dashboard/vacation_list`);
+       }else{
+           return res.redirect('/dashboard')
+       }
+};
+
+exports.vacationListPage = async (req, res, next) => {
+
+    let vac_list=[]
+    try {
+        const [qs_vac_list] = await dbConnection
+        .promise()
+        .execute(`
+                    SELECT s.*, a.*, vr.first_date, vr.vac_req_id, vr.last_date, vr.vac_type, vr.vac_condition
+                    FROM
+                    (
+                        SELECT u.first_name AS fns, u.last_name AS lns
+                        FROM hr_db.user u
+                        JOIN hr_db.vacation_req vr ON u.id = vr.suppliant_id
+                    ) s,
+                    (
+                        SELECT u.first_name AS fna, u.last_name AS lna
+                        FROM hr_db.user u
+                        JOIN hr_db.vacation_req vr ON u.id = vr.approver_id
+                    ) a,
+                    hr_db.vacation_req vr
+                    `);
+    vac_list=qs_vac_list;
+    } catch (error) {
+        console.error('Error fetching user info:', error);
+    }
+
+    res.render('vacation_req_list.ejs',{
+        vacationList: vac_list
+    });
+};
+
+exports.vacationList = async (req, res, next) => {
+    res.redirect(`/dashboard`);
 };
 
 exports.logoutPage = async (req, res, next) => {

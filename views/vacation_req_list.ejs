@@ -2,13 +2,39 @@
 <%- include("./partials/header.ejs")%> 
 
 <body>
+  <h1>Vacation list</h1><br><br><br>
     <form action="" method="post">
-        <div  class="container">
-          <div class="profile">
-            <div class="img"></div>
-            <h1>List of requests on vacations</h1>
-          </div>
-        </div>
+      <div class="center-container">
+        <table border="1">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Supplient</th>
+              <th>Approver</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Vacation Type</th>
+              <th>Condition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% vacationList.forEach(vacation => { %>
+                <tr>
+                    <td><%= vacation.vac_req_id %></td>
+                    <td><%= vacation.fns +' '+ vacation.lns %></td>
+                    <td><%= vacation.fna +' '+ vacation.lna  %></td>
+                    <td><%= new Intl.DateTimeFormat('en-US').format(vacation.first_date) %></td>
+                    <td><%= new Intl.DateTimeFormat('en-US').format(vacation.last_date) %></td>
+                    <td><%= vacation.vac_type %></td>
+                    <td><%= vacation.vac_condition %></td>
+                </tr>
+            <% }); %>
+        </tbody>
+        </table>
+      </div>
+      </form>
+      <form action="/dashboard" method="get">
+        <button class="btn btn-outline-success" type="submit">Back to dashboard</button>
       </form>
 <%- include("./partials/footer.ejs") %> 
 </body>

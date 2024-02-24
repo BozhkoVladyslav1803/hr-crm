@@ -2,14 +2,38 @@
 <%- include("./partials/header.ejs")%> 
 
 <body>
+  <h1>Create vacation</h1><br><br><br>      
+  <div class="center-container" >
     <form action="" method="post">
-        <div  class="container">
-          <div class="profile">
-            <div class="img"></div>
-            <h1>Create request</h1>
-          </div>
-        </div>
-      </form>
+      <div class="profile">
+        <div class="img"></div>
+        <label for="user_first_name">Supplient
+        <input type="text" class="input" id="supplient" name="supplient" value="<%= supplient %>"></label><br><br>
+        <label for="approvers">Approver
+        <select id="approvers" name="approvers" value="<%= approvers %>"><br><br>
+        <% approvers.forEach(approver => { %>
+            <option value="<%= approver %>"><%= approver %></option>
+        <% }); %>
+        </select></label><br><br>
+        <label for="first_date">From
+        <input type="date" class="input" id="first_date" name="first_date"></label><br><br>
+        <label for="last_date">To
+        <input type="date" class="input" id="last_date" name="last_date"></label><br><br>
+        <label for="vac_types_arr">Choose type:
+        <select id="vac_types_arr" name="vac_types_arr" value="<%= vac_types_arr %>"><br><br>
+        <% vac_types_arr.forEach(vac_type => { %>
+            <option value="<%= vac_type %>"><%= vac_type %></option>
+        <% }); %>
+        </select></label><br><br>
+        <label for="condition">Condition(reason of absence)
+        <input type="text" class="input" id="condition" name="condition"></label><br><br>
+      </div>
+      <button class="btn btn-outline-success" name="button_create_vac" value="create_vac" type="submit">Post</button>
+      <button class="btn btn-outline-success" name="button_create_vac" value="vacation_list" type="submit">Vacation List</button>
+    </form>
+  </div>
+      
+  
 <%- include("./partials/footer.ejs") %> 
 </body>
 </html>
